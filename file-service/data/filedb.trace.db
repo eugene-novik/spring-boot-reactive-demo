@@ -1,6 +1,0 @@
-2025-09-06 12:16:17.274199+02:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "FILE_METADATA" already exists; SQL statement:
-CREATE TABLE FILE_METADATA ( ID VARCHAR(36) PRIMARY KEY, PATH VARCHAR(255) NOT NULL ) [42101-232]
-2025-09-06 12:16:58.301773+02:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "FILE_METADATA" already exists; SQL statement:
-CREATE TABLE FILE_METADATA ( ID VARCHAR(36) PRIMARY KEY, PATH VARCHAR(255) NOT NULL ) [42101-232]
