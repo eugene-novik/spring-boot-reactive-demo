@@ -22,8 +22,8 @@ public class DocumentsController {
 
   private final WebClient webClient;
 
-  public DocumentsController(WebClient.Builder webClientBuilder) {
-    this.webClient = webClientBuilder.baseUrl("http://localhost:8080").build();
+  public DocumentsController(WebClient.Builder webClientBuilder, FileServiceProperties properties) {
+    this.webClient = webClientBuilder.baseUrl(properties.getBaseUrl()).build();
   }
 
   @GetMapping(value = "/{documentID}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
@@ -44,7 +44,6 @@ public class DocumentsController {
     return response.writeWith(fileStream)
         .onErrorResume(WebClientResponseException.class, ex -> {
           HttpStatusCode statusCode = ex.getStatusCode();
-          log.error("Ошибка от MS1: {} {}", statusCode.value(), ex.getMessage());
           response.setStatusCode(statusCode);
           return Mono.empty();
         })

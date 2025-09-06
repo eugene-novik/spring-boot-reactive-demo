@@ -1,12 +1,13 @@
 package io.github.eugenenovik.file.service;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.net.URLConnection;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +30,18 @@ public class FilesController {
 
     ClassPathResource resource = new ClassPathResource(filePath);
 
+    String contentType = URLConnection.guessContentTypeFromName(resource.getFilename());
+    if (contentType == null) {
+      contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+    }
+
+    long contentLength = 0;
+    try {
+      contentLength = resource.contentLength();
+    } catch (IOException ex) {
+      log.error("Can't get content-length", ex);
+    }
+
     StreamingResponseBody stream = outputStream -> {
       try (InputStream inputStream = resource.getInputStream()) {
         byte[] buffer = new byte[4096];
@@ -38,7 +51,7 @@ public class FilesController {
           outputStream.write(buffer, 0, bytesRead);
           outputStream.flush();
           total += bytesRead;
-          log.info("Sent {} bites from file-service", total);
+          log.info("Sent {} bytes from file-service", total);
 
           Thread.sleep(50);
         }
@@ -48,7 +61,12 @@ public class FilesController {
       }
     };
 
-    return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(stream);
+    return ResponseEntity.ok()
+        .contentType(MediaType.parseMediaType(contentType))
+        .header(
+            HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+        .contentLength(contentLength)
+        .body(stream);
   }
 
 }
