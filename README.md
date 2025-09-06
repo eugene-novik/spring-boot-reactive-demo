@@ -13,7 +13,7 @@ Files are streamed **chunk-by-chunk**, allowing large files to be transferred wi
 
 ## Technology Stack
 
-* **Java 24+**
+* **Java 24**
 * **Spring Boot 3.x**
 
     * MS2: `spring-boot-starter-webflux`
