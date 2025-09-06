@@ -1,10 +1,14 @@
 package io.github.eugenenovik.process.orchestration;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,26 +32,32 @@ public class DocumentsController {
 
   @GetMapping(value = "/{documentID}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   public Mono<Void> proxyDocument(@PathVariable UUID documentID, ServerHttpResponse response) {
-
-    Flux<DataBuffer> fileStream = webClient.get()
+    return webClient.get()
         .uri("api/v1/files/{fileID}", documentID)
-        .retrieve()
-        .onStatus(HttpStatusCode::isError, clientResponse -> {
-          log.error("Can't stream file {}, status code {}", documentID,
-              clientResponse.statusCode());
-          return clientResponse.createException();
-        })
-        .bodyToFlux(DataBuffer.class)
-        .doOnNext(dataBuffer -> log.info("Got bytes from file service: {} byte",
-            dataBuffer.readableByteCount()));
+        .exchangeToMono(clientResponse -> {
+          HttpStatusCode statusCode = clientResponse.statusCode();
 
-    return response.writeWith(fileStream)
-        .onErrorResume(WebClientResponseException.class, ex -> {
-          HttpStatusCode statusCode = ex.getStatusCode();
+          if (statusCode.isError()) {
+            response.setStatusCode(statusCode);
+            response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+            return clientResponse.bodyToMono(String.class)
+                .defaultIfEmpty("Upstream error")
+                .flatMap(errorBody -> {
+                  byte[] bytes = errorBody.getBytes(StandardCharsets.UTF_8);
+                  DataBuffer buffer = response.bufferFactory().wrap(bytes);
+                  return response.writeWith(Mono.just(buffer));
+                });
+          }
+
           response.setStatusCode(statusCode);
-          return Mono.empty();
-        })
-        .then();
+          response.getHeaders().putAll(clientResponse.headers().asHttpHeaders());
+
+          return response.writeWith(clientResponse.bodyToFlux(DataBuffer.class)
+              .doOnNext(dataBuffer -> log.info("Got bytes from file service: {} byte",
+                  dataBuffer.readableByteCount())));
+        });
   }
+
 
 }
