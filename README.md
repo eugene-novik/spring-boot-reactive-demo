@@ -47,10 +47,10 @@ MS1 stores file metadata in H2:
 
 ## Running the Services
 
-### MS1 – File Service (Tomcat)
+### File Service (Tomcat)
 
 ```bash
-cd ms1-file-service
+cd file-service
 ./mvnw spring-boot:run
 ```
 
@@ -58,10 +58,10 @@ cd ms1-file-service
 * Example endpoint: `GET http://localhost:8080/api/v1/files/{fileID}`
 * Streams file in chunks with headers: `Content-Type`, `Content-Disposition`, `Content-Length`.
 
-### MS2 – Reactive Orchestrator
+### Reactive Orchestrator
 
 ```bash
-cd ms2-orchestrator
+cd process-orchestration
 ./mvnw spring-boot:run
 ```
 
