@@ -1,4 +1,4 @@
-package io.github.eugenenovik.file_service;
+package io.github.eugenenovik.file.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

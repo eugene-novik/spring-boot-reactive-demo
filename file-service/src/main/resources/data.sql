@@ -1,3 +1,3 @@
 INSERT INTO FILE_METADATA (ID, PATH) VALUES
-('11111111-1111-1111-1111-111111111111', 'static/file1.txt'),
-('22222222-2222-2222-2222-222222222222', 'static/file2.txt');
+('d56ada6a-ae30-4229-9030-93a3219db85a', 'static/english-words.pdf'),
+('fc0d8f9f-4b05-4f83-b318-d7a7c3dae3cb', 'static/large-file.txt');
