@@ -1,4 +1,5 @@
 package io.github.eugenenovik.file.service;
 
-public class FileMetadataDTO {
+public record FileMetadataDTO(String name) {
+
 }

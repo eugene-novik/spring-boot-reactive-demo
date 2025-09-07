@@ -40,10 +40,10 @@ Files are streamed **chunk-by-chunk**, allowing large files to be transferred wi
 
 MS1 stores file metadata in H2:
 
-| UUID                                 | Path                     |
+| UUID                                 | NAME                     |
 | ------------------------------------ | ------------------------ |
-| d56ada6a-ae30-4229-9030-93a3219db85a | static/english-words.pdf |
-| fc0d8f9f-4b05-4f83-b318-d7a7c3dae3cb | static/large-file.txt    |
+| d56ada6a-ae30-4229-9030-93a3219db85a | english-words.pdf |
+| fc0d8f9f-4b05-4f83-b318-d7a7c3dae3cb | large-file.txt    |
 
 ## Running the Services
 
@@ -73,26 +73,34 @@ cd process-orchestration
 ## Features
 
 * **Reactive streaming** of large files without consuming excessive memory
+* **Uploading file**
 * **Header propagation** (`Content-Type`, `Content-Disposition`, `Content-Length`)
 * **Error handling**:
-
     * 4xx/5xx from MS1 → returned as-is to client
     * Network/streaming errors → 503 / 500
 * **Progress logging** of file chunks
 
-## Example Usage
+## Example Usage from curls directory
 
 ### Request a file
 
 ```bash
-curl -v http://localhost:8081/proxy/d56ada6a-ae30-4229-9030-93a3219db85a --output english-words.pdf
+curl -v http://localhost:8081/api/v1/documents/d56ada6a-ae30-4229-9030-93a3219db85a --output english-words.pdf
 ```
 
 ### Large file streaming
 
 ```bash
-curl -v http://localhost:8081/proxy/fc0d8f9f-4b05-4f83-b318-d7a7c3dae3cb --output large-file.txt
+curl -v http://localhost:8081/api/v1/documents/fc0d8f9f-4b05-4f83-b318-d7a7c3dae3cb --output large-file.txt
 ```
+
+### Upload a file
+```bash
+curl -v -X POST http://localhost:8081/api/v1/documents \
+  -F "file=@museum_of_color.pdf" \
+  -F "metadata={\"documentName\":\"Museum of Color\",\"documentType\":\"pdf\"};type=application/json"
+```
+
 
 * The files are streamed **chunk by chunk**, so memory footprint remains minimal.
 

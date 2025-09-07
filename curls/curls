@@ -1,0 +1,16 @@
+```bash
+curl -v http://localhost:8081/api/v1/documents/d56ada6a-ae30-4229-9030-93a3219db85a --output english-words.pdf
+```
+
+### Large file streaming
+
+```bash
+curl -v http://localhost:8081/api/v1/documents/fc0d8f9f-4b05-4f83-b318-d7a7c3dae3cb --output large-file.txt
+```
+
+### Upload a file (do it from folder tests)
+```bash
+curl -v -X POST http://localhost:8081/api/v1/documents \
+  -F "file=@museum_of_color.pdf" \
+  -F "metadata={\"documentName\":\"Museum of Color\",\"documentType\":\"pdf\"};type=application/json"
+```
