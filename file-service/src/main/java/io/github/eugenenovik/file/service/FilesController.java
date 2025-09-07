@@ -44,7 +44,6 @@ public class FilesController {
 
     DeferredResult<ResponseEntity<Map<String, String>>> result = new DeferredResult<>();
 
-
     String newFileName = file.getOriginalFilename();
     fileMetadataService.validateFileName(newFileName);
 
