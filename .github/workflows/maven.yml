@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [file-service, process-orchestration]
+
+    working-directory: ${{ matrix.service }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          path: ${{ matrix.service }}
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with: np
+          distribution: temurin
+          java-version: 21
+
+      - name: Cache Maven
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles(matrix.service + '/**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build and Test
+        run: mvn -B clean verify
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.service }}-test-results
+          path: target/surefire-reports/**/*
